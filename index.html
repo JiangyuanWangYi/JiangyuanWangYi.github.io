@@ -1,1 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yi Wang — 3D Computer Vision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tum-blue:#0065BD;
+    --tum-blue-dark:#003359;
+    --navy:#0A2540;
+    --bg:#F6F8FA;
+    --card:#FFFFFF;
+    --accent-light:#E7F1FB;
+    --ink:#16232E;
+    --muted:#5A6B7A;
+    --line:#DCE4EC;
+    --radius:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif;}
+  a{color:var(--tum-blue); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .mono{font-family:'JetBrains Mono', monospace;}
 
+  /* ---- fragment divider signature element ---- */
+  .fragment-divider{
+    width:100%;
+    height:14px;
+    margin:0 0 40px 0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .fragment-divider span{
+    display:block;
+    height:2px;
+    background:var(--tum-blue);
+    opacity:0.35;
+  }
+  .fragment-divider span:nth-child(1){flex:2.2;}
+  .fragment-divider span:nth-child(2){flex:0.6; opacity:0.7; height:3px;}
+  .fragment-divider span:nth-child(3){flex:1.4;}
+  .fragment-divider span:nth-child(4){flex:0.4; opacity:0.9; height:4px; background:var(--tum-blue-dark);}
+  .fragment-divider span:nth-child(5){flex:3;}
+
+  .layout{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    min-height:100vh;
+  }
+
+  /* ---- sidebar ---- */
+  .sidebar{
+    background:var(--navy);
+    color:#EAF2FA;
+    padding:56px 36px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .avatar{
+    width:96px; height:96px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--tum-blue), #4FA6E8);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk'; font-weight:700; font-size:32px;
+    color:#fff;
+    margin-bottom:24px;
+    box-shadow:0 0 0 4px rgba(0,101,189,0.25);
+  }
+  .sidebar h1{
+    font-size:26px;
+    font-weight:700;
+    color:#fff;
+    margin-bottom:4px;
+  }
+  .sidebar .role{
+    color:#9FC4E8;
+    font-size:14px;
+    margin-bottom:28px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .sidebar-section{margin-bottom:30px;}
+  .sidebar-section h3{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    color:#6E93B8;
+    margin-bottom:12px;
+    font-weight:600;
+  }
+  .sidebar-section p, .sidebar-section li{
+    font-size:14px;
+    color:#CBDEF0;
+  }
+  .sidebar-section ul{list-style:none;}
+  .sidebar-section li{margin-bottom:8px; display:flex; gap:8px;}
+  .sidebar-section li::before{
+    content:"";
+    width:5px; height:5px;
+    background:var(--tum-blue);
+    border-radius:50%;
+    margin-top:7px;
+    flex-shrink:0;
+  }
+  .contact-list a{
+    color:#CBDEF0;
+    display:block;
+    margin-bottom:8px;
+    font-size:14px;
+    transition:color .15s;
+  }
+  .contact-list a:hover{color:#fff;}
+  .skill-tags{display:flex; flex-wrap:wrap; gap:8px;}
+  .skill-tags span{
+    background:rgba(0,101,189,0.25);
+    border:1px solid rgba(0,101,189,0.5);
+    color:#D6E9FB;
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:20px;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ---- main content ---- */
+  main{padding:64px 72px; max-width:920px;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--tum-blue);
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  section{margin-bottom:56px;}
+  section h2{
+    font-size:28px;
+    margin-bottom:22px;
+    color:var(--navy);
+  }
+  .hero h2{font-size:38px; line-height:1.25; margin-bottom:18px;}
+  .hero p.lede{
+    font-size:17px;
+    color:var(--muted);
+    max-width:640px;
+    margin-bottom:26px;
+  }
+  .btn-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    display:inline-block;
+    padding:11px 20px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:500;
+    font-family:'Inter';
+  }
+  .btn-primary{
+    background:var(--tum-blue);
+    color:#fff;
+  }
+  .btn-primary:hover{background:var(--tum-blue-dark); text-decoration:none;}
+  .btn-outline{
+    border:1.5px solid var(--tum-blue);
+    color:var(--tum-blue);
+  }
+  .btn-outline:hover{background:var(--accent-light); text-decoration:none;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    margin-bottom:18px;
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .card h3{font-size:17px; color:var(--navy);}
+  .tag-status{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .tag-accepted{background:#E4F5EA; color:#1C7A42;}
+  .tag-progress{background:var(--accent-light); color:var(--tum-blue-dark);}
+  .card .meta{font-size:13px; color:var(--muted); margin-bottom:10px;}
+  .card p.desc{font-size:14.5px; color:#3A4A58;}
+
+  .timeline-item{
+    display:grid;
+    grid-template-columns:140px 1fr;
+    gap:20px;
+    padding-bottom:26px;
+    position:relative;
+  }
+  .timeline-item:not(:last-child)::before{
+    content:"";
+    position:absolute;
+    left:143px;
+    top:20px;
+    bottom:0;
+    width:1px;
+    background:var(--line);
+  }
+  .timeline-item .when{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--tum-blue);
+    padding-top:2px;
+  }
+  .timeline-item h3{font-size:16px; margin-bottom:4px; color:var(--navy);}
+  .timeline-item .org{font-size:13.5px; color:var(--muted); margin-bottom:6px;}
+  .timeline-item p.desc{font-size:14px; color:#3A4A58;}
+
+  .skills-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:16px;
+  }
+  .skills-grid .card h3{font-size:14px; margin-bottom:10px; color:var(--tum-blue-dark);}
+  .skills-grid .skill-tags span{
+    background:var(--accent-light);
+    border:1px solid #CFE3F5;
+    color:var(--tum-blue-dark);
+  }
+
+  footer{
+    padding:30px 72px 60px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  @media (max-width: 860px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{position:relative; height:auto;}
+    main{padding:40px 24px;}
+    footer{padding:20px 24px 40px;}
+    .timeline-item{grid-template-columns:1fr;}
+    .timeline-item::before{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="avatar">YW</div>
+    <h1>Yi Wang</h1>
+    <div class="role">3D Computer Vision · Remote Sensing</div>
+
+    <div class="sidebar-section">
+      <h3>About</h3>
+      <p>MSc student in ESPACE (Remote Sensing &amp; Photogrammetry) at the Technical University of Munich. BSc in Geographical Information Science, Sun Yat-sen University.</p>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Focus</h3>
+      <ul>
+        <li>3D point cloud understanding</li>
+        <li>Fractured object reassembly</li>
+        <li>Facade semantic segmentation</li>
+        <li>Open-vocabulary 3D scene understanding</li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Toolkit</h3>
+      <div class="skill-tags">
+        <span>KPConv</span>
+        <span>PTv3</span>
+        <span>GrowSP</span>
+        <span>SAM</span>
+        <span>3DGS</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Connect</h3>
+      <div class="contact-list">
+        <a href="mailto:your.email@tum.de">your.email@tum.de</a>
+        <a href="https://github.com/JiangyuanWangYi" target="_blank">github.com/JiangyuanWangYi</a>
+        <a href="#" target="_blank">LinkedIn</a>
+        <a href="#" target="_blank">Google Scholar</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <section class="hero">
+      <div class="eyebrow">Portfolio &amp; Research</div>
+      <h2>Reassembling how machines<br>understand broken 3D worlds.</h2>
+      <p class="lede">I work on 3D point cloud understanding and geometric deep learning — from large-scale facade segmentation benchmarks to reasoning about which fractured fragments actually belong together before reassembly.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#publications">View Publications</a>
+        <a class="btn btn-outline" href="#projects">See Projects</a>
+      </div>
+    </section>
+
+    <div class="fragment-divider"><span></span><span></span><span></span><span></span><span></span></div>
+
+    <section id="publications">
+      <h2>Publications</h2>
+
+      <div class="card">
+        <div class="card-top">
+          <h3>UnderOneFacade: A Cross-Country Benchmark for 3D Facade Semantic Segmentation</h3>
+          <span class="tag-status tag-accepted">ECCV 2026 · Datasets &amp; Benchmarks Track</span>
+        </div>
+        <div class="meta">Core author · with Olaf Wysocki and 10 co-authors · TUM, Cambridge, Nottingham, NUS</div>
+        <p class="desc">A large-scale, cross-country 3D facade segmentation benchmark evaluating eight methods — including PointNet++, PTv3, KPConv, and GrowSP — across multiple label hierarchies.</p>
+        <div class="btn-row" style="margin-top:14px;">
+          <a class="btn btn-outline" href="https://jiangyuanwangyi.github.io/UnderOneFacade_official/" target="_blank" style="padding:8px 16px; font-size:13px;">Project Page</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="fragment-divider"><span></span><span></span><span></span><span></span><span></span></div>
+
+    <section id="projects">
+      <h2>Current Research</h2>
+
+      <div class="card">
+        <div class="card-top">
+          <h3>Rejecting Extraneous Fragments in Multi-Object 3D Reassembly</h3>
+          <span class="tag-status tag-progress">In Progress</span>
+        </div>
+        <div class="meta">Independent research direction</div>
+        <p class="desc">Given a mixed pool of fragments from multiple broken objects, most reassembly methods (e.g. GARF, CRAG) assume every fragment belongs to one clean object. This project introduces a fragment-level matching confidence head, trained with cross-object contrastive negatives on top of PTv3-based fracture features, to identify and reject extraneous fragments before reassembly begins.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-top">
+          <h3>Fractured Object Instance Segmentation in 3D Scenes</h3>
+          <span class="tag-status tag-progress">Exploratory</span>
+        </div>
+        <div class="meta">Bridging fragment geometry with scene-level segmentation</div>
+        <p class="desc">Investigating fractured object detection inside indoor 3D scenes — relaxing the reassembly community's assumption of clean, isolated fragments by combining Breaking Bad–style fragment geometry with ScanNet-style scene context.</p>
+      </div>
+    </section>
+
+    <div class="fragment-divider"><span></span><span></span><span></span><span></span><span></span></div>
+
+    <section>
+      <h2>Background</h2>
+
+      <div class="timeline-item">
+        <div class="when">2024 — Present</div>
+        <div>
+          <h3>MSc, ESPACE (Remote Sensing &amp; Photogrammetry)</h3>
+          <div class="org">Technical University of Munich</div>
+          <p class="desc">Focus on 3D point cloud processing, semantic and instance segmentation, and geometric deep learning. Active member of the TUM-XR student organization.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="when">Earlier</div>
+        <div>
+          <h3>BSc, Geographical Information Science</h3>
+          <div class="org">Sun Yat-sen University</div>
+          <p class="desc">Academic foundation in remote sensing and photogrammetry, with fieldwork experience in land-use mapping and household-level socioeconomic survey collection.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="fragment-divider"><span></span><span></span><span></span><span></span><span></span></div>
+
+    <section>
+      <h2>Skills</h2>
+      <div class="skills-grid">
+        <div class="card">
+          <h3>3D Deep Learning</h3>
+          <div class="skill-tags">
+            <span>KPConv</span><span>PTv1/v3</span><span>GrowSP</span><span>DGCNN</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Segmentation &amp; Recognition</h3>
+          <div class="skill-tags">
+            <span>SAM</span><span>Open-Vocab 3D</span><span>Instance Seg</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Scene Representation</h3>
+          <div class="skill-tags">
+            <span>3D Gaussian Splatting</span><span>NeRF-style pipelines</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Remote Sensing</h3>
+          <div class="skill-tags">
+            <span>GEE</span><span>Landsat / MODIS</span><span>Photogrammetry</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  © 2026 Yi Wang. Built with plain HTML/CSS — no frameworks, no build step.
+</footer>
+
+</body>
+</html>
